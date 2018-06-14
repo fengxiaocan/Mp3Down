@@ -4,40 +4,6 @@ import com.google.gson.annotations.SerializedName;
 
 public class UrlInfo {
 
-
-    /**
-     * fileHead : 100
-     * q : 17257
-     * extra : {"320filesize":11191042,"sqfilesize":33479599,"sqhash":"09BE9E5C6515D5FC9BFE349A2FE5D218","128hash":"31D0D24922A3917CE91147A186A56518","320hash":"23F370FA1C067A6C51E091640648680C","128filesize":4474453}
-     * fileSize : 4485036
-     * hash : 2B616F6AB9F8655210FD823B900085CC
-     * choricSinger : 汪峰
-     * error :
-     * imgUrl : http://singerimg.kugou.com/uploadpic/softhead/{size}/20170331/20170331235553531.jpg
-     * errcode : 0
-     * songName : 春天里
-     * url : http://fs.open.kugou.com/003435a32d8f9e3b8a07ba56f734c3b6/5b2100c8/G003/M0A/1B/1D/o4YBAFS5KDqAZh0gAERvrKQpAZI992.mp3
-     * time : 1528889545
-     * bitRate : 128
-     * singerHead :
-     * album_img : http://imge.kugou.com/stdmusic/{size}/20150718/20150718090236835587.jpg
-     * intro :
-     * singerId : 2726
-     * ctype : 1009
-     * status : 1
-     * stype : 11323
-     * albumid : 0
-     * singerName : 汪峰
-     * privilege : 8
-     * fileName : 汪峰 - 春天里
-     * topic_url :
-     * mvhash : 1217881290BAA14EFE930CE946367423
-     * topic_remark :
-     * extName : mp3
-     * req_hash : 2B616F6AB9F8655210FD823B900085CC
-     * timeLength : 280
-     */
-
     private int fileHead;
     private int q;
 //    private ExtraBean extra;

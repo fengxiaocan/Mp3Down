@@ -67,13 +67,6 @@ public class RetrofigUtils {
         });
     }
 
-    private static Api searchHash() {
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(Api.SEARCH_HASH_API)
-                                                  .client(sOkHttpClient)
-                                                  .build();
-        return retrofit.create(Api.class);
-    }
-
 
     private static Api down() {
         Retrofit retrofit = new Retrofit.Builder().baseUrl(Api.DOWN_URL)
@@ -114,34 +107,4 @@ public class RetrofigUtils {
             }
         });
     }
-
-    public static void searchHash(String hash) {
-        SearchHash searchHash = new SearchHash();
-        ArrayList<SearchHash.ResourceBean> resource = new ArrayList<>();
-        SearchHash.ResourceBean bean = new SearchHash.ResourceBean();
-        bean.setHash(hash);
-        resource.add(bean);
-        searchHash.setResource(resource);
-        searchHash().searchHase(Constant.USER_AGENT,Constant.CONTENT_TYPE,Constant.HOST,searchHash)
-                    .enqueue(new Callback<ResponseBody>() {
-                        @Override
-                        public void onResponse(
-                                Call<ResponseBody> call,Response<ResponseBody> response
-                        )
-                        {
-                            try {
-                                Log.e("noah",response.body().string());
-
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<ResponseBody> call,Throwable t) {
-
-                        }
-                    });
-    }
-
 }
