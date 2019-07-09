@@ -15,9 +15,8 @@ public interface Api {
     String SEARCH_API = "http://mobilecdngz.kugou.com/api/v3/search/";
     String DOWN_URL = "http://m.kugou.com/app/i/";
 
-    @GET("song?showtype=14&highlight=em&tag_aggr=1&plat=0&sver=5&correct=1&api_ver=1&page=1&area_code=1&with_res_tag=1")
+    @GET("song")
     Call<ResponseBody> search(
-            @Query("version") int version,
             @Query("page") int page,
             @Query("pagesize") int pagesize,
             @Query("tagtype") String tagtype,

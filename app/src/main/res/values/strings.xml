@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Mp3下载</string>
     <string name="action_settings">设置</string>
+    <string name="action_info">详细</string>
 </resources>

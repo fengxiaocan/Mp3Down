@@ -1,14 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     defaultConfig {
         applicationId "com.evil.mp3down"
-        minSdkVersion 21
-        targetSdkVersion 27
+        minSdkVersion 19
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -16,20 +15,29 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.1'
-    implementation 'com.android.support:design:27.1.1'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'com.google.android.material:material:1.0.0'
+//    testImplementation 'junit:junit:4.12'
+//    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+//    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     implementation 'com.github.fengxiaocan:IosDialog:v1.0.1'
-    implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-alpha-7'
-    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
-    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'com.scwang.smartrefresh:SmartRefreshLayout:latest.release'
+//    implementation 'com.github.fengxiaocan:RxPermission:latest.release'
+//    implementation 'com.yanzhenjie.permission:x:latest.release'
+    implementation 'com.squareup.retrofit2:retrofit:latest.release'
+    implementation 'com.squareup.okhttp3:okhttp:latest.release'
     implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.liulishuo.filedownloader:library:latest.release'
+//    implementation 'cn.imlibo:FilePicker:v0.0.5_alpha'
+    implementation 'com.github.fengxiaocan:FilePicker:1.0.1'
 }

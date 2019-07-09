@@ -1,8 +1,8 @@
 package com.evil.mp3down;
 
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,17 +14,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
-    private List<SearchInfo.DataBean.InfoBean> mSearchInfos;
+    private List<InfoBean> mSearchInfos;
 
-    public List<SearchInfo.DataBean.InfoBean> getDatas() {
+    public List<InfoBean> getDatas() {
         return mSearchInfos;
     }
     private Handler mHandler;
     public void setSearchInfos(SearchInfo infos) {
         if (infos != null) {
-            SearchInfo.DataBean data = infos.getData();
+            DataBean data = infos.getData();
             if (data != null) {
-                List<SearchInfo.DataBean.InfoBean> info = data.getInfo();
+                List<InfoBean> info = data.getInfo();
                 setData(info);
             }
         }
@@ -32,9 +32,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     public void addSearchInfos(SearchInfo infos) {
         if (infos != null) {
-            SearchInfo.DataBean data = infos.getData();
+            DataBean data = infos.getData();
             if (data != null) {
-                List<SearchInfo.DataBean.InfoBean> info = data.getInfo();
+                List<InfoBean> info = data.getInfo();
                 addData(info);
             }
         }
@@ -45,13 +45,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         notifyDataSetChanged();
     }
 
-    public void setData(List<SearchInfo.DataBean.InfoBean> searchInfos) {
+    public void setData(List<InfoBean> searchInfos) {
         mSearchInfos = searchInfos;
         notifyDataSetChanged();
     }
 
 
-    public void addData(List<SearchInfo.DataBean.InfoBean> searchInfos) {
+    public void addData(List<InfoBean> searchInfos) {
         if (searchInfos == null) {
             return;
         }
@@ -79,7 +79,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder,int position) {
-        SearchInfo.DataBean.InfoBean bean = mSearchInfos.get(position);
+        InfoBean bean = mSearchInfos.get(position);
         holder.mTvName.setText(bean.getSongname());
         holder.mTvAuthor.setText(bean.getSingername());
         holder.mTvAblum.setText(bean.getAlbum_name());
@@ -123,7 +123,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
         @Override
         public void onClick(View v) {
-            RetrofigUtils.downMp3(songname,hash,mHandler);
+            RetrofitUtils.downMp3(songname,hash,mHandler);
         }
     }
 }

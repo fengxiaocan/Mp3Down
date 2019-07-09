@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:paddingLeft="20dp"
+        android:text="选择下载方式:"
+        android:textColor="@color/titleTextColor540"
+        android:textFontWeight="400"
+        android:textSize="16sp" />
+
+    <RadioGroup
+        android:id="@+id/down_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/contentTextColorD7"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/third_down"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:button="@null"
+            android:drawableRight="?android:attr/listChoiceIndicatorSingle"
+            android:paddingLeft="20dp"
+            android:text="第三方下载" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/white" />
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/system_down"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:button="@null"
+            android:checked="true"
+            android:drawableRight="?android:attr/listChoiceIndicatorSingle"
+            android:paddingLeft="20dp"
+            android:text="系统下载" />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/tv_down_path"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:text="当前下载文件夹路径:"
+        android:textColor="@color/titleTextColor540"
+        android:textFontWeight="400"
+        android:textSize="16sp" />
+
+</LinearLayout>

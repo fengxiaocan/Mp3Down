@@ -5,10 +5,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.evil.mp3down.interceptor.HttpLogInterceptor;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -19,14 +18,14 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import static com.evil.mp3down.Constant.TAG_TYPE;
-import static com.evil.mp3down.Constant.VERSION;
 
-public class RetrofigUtils {
+public class RetrofitUtils {
 
     private static OkHttpClient sOkHttpClient;
 
     static {
         OkHttpClient.Builder builder = new OkHttpClient().newBuilder();
+        builder.addInterceptor(new HttpLogInterceptor(HttpLogInterceptor.Level.BODY));
         builder.readTimeout(10,TimeUnit.SECONDS);
         builder.connectTimeout(9,TimeUnit.SECONDS);
         sOkHttpClient = builder.build();
@@ -39,8 +38,9 @@ public class RetrofigUtils {
         return retrofit.create(Api.class);
     }
 
-    public static void search(int page,String keyworld,final OnResultListener listener) {
-        search().search(VERSION,page,30,TAG_TYPE,keyworld).enqueue(new Callback<ResponseBody>() {
+    public static void search(final int page, String keyworld, final OnResultListener listener) {
+        Log.e("noah","page="+page);
+        search().search(page, 30, TAG_TYPE, keyworld).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(
                     Call<ResponseBody> call,Response<ResponseBody> response
@@ -48,12 +48,9 @@ public class RetrofigUtils {
             {
                 try {
                     if (response.isSuccessful()) {
-
-                        listener.seccess(response.body().string());
-
+                        listener.seccess(page == 1, response.body().string());
                     } else {
                         listener.error(response.errorBody().string());
-
                     }
                 } catch (IOException e) {
                     listener.error(e.getMessage());

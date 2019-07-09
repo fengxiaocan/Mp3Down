@@ -1,47 +1,54 @@
 package com.evil.mp3down;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.DownloadManager;
+import android.app.Notification;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.text.format.Formatter;
-import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.app.filepicker.model.EssFile;
+import com.app.filepicker.util.Const;
+import com.app.filepicker.util.LogUtils;
 import com.evil.ioslibs.DialogCancelListener;
 import com.evil.ioslibs.IDialogListener;
 import com.evil.ioslibs.InputDialog;
 import com.evil.ioslibs.InputResultListener;
 import com.evil.ioslibs.IosDialog;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.liulishuo.filedownloader.BaseDownloadTask;
+import com.liulishuo.filedownloader.FileDownloadSampleListener;
+import com.liulishuo.filedownloader.FileDownloader;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
-import com.scwang.smartrefresh.layout.header.FalsifyHeader;
 import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+
+import java.io.File;
+import java.util.ArrayList;
 
 import static com.evil.mp3down.Constant.INPUT_HINT;
 
@@ -50,28 +57,30 @@ public class MainActivity extends AppCompatActivity
 {
     private String keyworld;
     private int mPage = 1;
+    private static final int REQUEST_CODE_CHOOSE = 0x334;
+    private InputDialog mInputDialog;
+    private MyAdapter mAdapter;
+    private SmartRefreshLayout mSmartRefreshLayout;
+    private MyHandler mHandler;
     private InputResultListener mIDialogListener = new InputResultListener() {
         @Override
         public void onResult(String s) {
             if (!TextUtils.isEmpty(s)) {
                 keyworld = s;
-                RetrofigUtils.search(1,s,new OnSearchResultListener(true));
+                RetrofitUtils.search(1, s, new OnSearchResultListener());
             }
         }
     };
-    private InputDialog mInputDialog;
-    private MyAdapter mAdapter;
-    private SmartRefreshLayout mSmartRefreshLayout;
-    private MyHandler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FileDownloader.setup(this);
         setContentView(R.layout.activity_main);
         mHandler = new MyHandler();
-        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
-        RecyclerView recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
-        mSmartRefreshLayout = (SmartRefreshLayout)findViewById(R.id.smart_refresh_layout);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        mSmartRefreshLayout = findViewById(R.id.smart_refresh_layout);
         mSmartRefreshLayout.setOnRefreshListener(this);
         mSmartRefreshLayout.setOnLoadMoreListener(this);
         mSmartRefreshLayout.setRefreshHeader(new ClassicsHeader(getContext()));
@@ -88,14 +97,17 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mInputDialog = new InputDialog(getContext()).setInputHint(INPUT_HINT)
-                                                            .setInputMaxLenght(30)
-                                                            .setInputHintColor(getResources().getColor(
-                                                                    R.color.buttonBackground8DB5F8))
-                                                            .setInputTextColor(getResources().getColor(
-                                                                    R.color.contentTextColor131C));
-                mInputDialog.setInputResultListener(mIDialogListener);
-                mInputDialog.getInput().setText("");
+                if (mInputDialog == null) {
+                    mInputDialog = new InputDialog(getContext()).setInputHint(INPUT_HINT)
+                                                                .setInputMaxLenght(30)
+                                                                .setInputHintColor(getResources()
+                                                                        .getColor(
+                                                                                R.color.buttonBackground8DB5F8))
+                                                                .setInputTextColor(getResources()
+                                                                        .getColor(
+                                                                                R.color.contentTextColor131C));
+                    mInputDialog.setInputResultListener(mIDialogListener);
+                }
                 mInputDialog.builder().show();
             }
         });
@@ -110,6 +122,10 @@ public class MainActivity extends AppCompatActivity
                         Manifest.permission.READ_EXTERNAL_STORAGE
                 },0x123);
             }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0x731);
         }
     }
 
@@ -134,6 +150,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -157,7 +174,7 @@ public class MainActivity extends AppCompatActivity
             refreshLayout.finishRefresh(500);
             return;
         }
-        RetrofigUtils.search(1,keyworld,new OnSearchResultListener(true));
+        RetrofitUtils.search(1, keyworld, new OnSearchResultListener());
     }
 
     @Override
@@ -167,7 +184,29 @@ public class MainActivity extends AppCompatActivity
             refreshLayout.finishLoadMore(500);
             return;
         }
-        RetrofigUtils.search(mPage,keyworld,new OnSearchResultListener(false));
+        RetrofitUtils.search(mPage + 1, keyworld, new OnSearchResultListener());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK) {
+            return;
+        }
+        if (requestCode == REQUEST_CODE_CHOOSE) {
+            ArrayList<EssFile> essFileList = data.getParcelableArrayListExtra(
+                    Const.EXTRA_RESULT_SELECTION);
+            for (EssFile file : essFileList) {
+                LogUtils.error(file.getAbsolutePath());
+            }
+        }
+    }
+
+    private void notification(String fileName, String tip) {
+        new NotificationUtils(getApplicationContext()).setTicker("Mp3下载").setSound(
+                android.provider.Settings.System.DEFAULT_NOTIFICATION_URI).setPriority(
+                Notification.PRIORITY_DEFAULT).sendNotification(fileName.hashCode() % 100, tip,
+                fileName + tip, R.drawable.ic_music_note_blue_400_24dp);
     }
 
     private class MyHandler extends Handler {
@@ -178,7 +217,11 @@ public class MainActivity extends AppCompatActivity
                     toast(((String)msg.obj));
                     break;
                 case 1:
-                    mAdapter.setSearchInfos(((SearchInfo)msg.obj));
+                    SearchInfo info = (SearchInfo) msg.obj;
+                    DataBean data = info.getData();
+                    int total = data.getTotal();
+                    setTitle(keyworld + ":共" + total + "条");
+                    mAdapter.setSearchInfos(info);
                     mSmartRefreshLayout.finishRefresh();
                     break;
                 case 2:
@@ -193,22 +236,75 @@ public class MainActivity extends AppCompatActivity
                                                .setLeftButton("确认",new IDialogListener() {
                                                    @Override
                                                    public void onClick(DialogInterface dialogInterface) {
-                                                       //创建下载任务,downloadUrl就是下载链接
+                                                       String fileName = down.getFileName() + "." +
+                                                                         down.getExtName();
+                                                       if (Setting.getInstance().isSystemDown()) {
+                                                           //创建下载任务,downloadUrl就是下载链接
+                                                           DownloadManager.Request request =
+                                                                   new DownloadManager.Request(
+                                                                           Uri.parse(
+                                                                                   down.getUrl()));
+                                                           //指定下载路径和下载文件名
+                                                           request.setDestinationInExternalPublicDir(
+                                                                   "/download/", fileName);
+                                                           //获取下载管理器
+                                                           DownloadManager downloadManager =
+                                                                   (DownloadManager) getSystemService(
+                                                                           Context.DOWNLOAD_SERVICE);
+                                                           //将下载任务加入下载队列，否则不会进行下载
+                                                           downloadManager.enqueue(request);
+                                                       } else {
+                                                           File downFile;
+                                                           if (TextUtils.isEmpty(
+                                                                   Setting.getInstance()
+                                                                          .getDownPath()))
+                                                           {
+                                                               downFile = new File(Environment
+                                                                       .getExternalStoragePublicDirectory(
+                                                                               Environment.DIRECTORY_DOWNLOADS),
+                                                                       fileName);
+                                                           } else {
+                                                               downFile = new File(
+                                                                       Setting.getInstance()
+                                                                              .getDownPath(),
+                                                                       fileName);
+                                                           }
+                                                           FileDownloader.getImpl().create(
+                                                                   down.getUrl()).setPath(
+                                                                   downFile.getAbsolutePath())
+                                                                         .setListener(
+                                                                                 new FileDownloadSampleListener() {
+                                                                                     @Override
+                                                                                     protected void pending(
+                                                                                             BaseDownloadTask task,
+                                                                                             int soFarBytes,
+                                                                                             int totalBytes)
+                                                                                     {
+                                                                                         notification(
+                                                                                                 down.getFileName(),
+                                                                                                 "正在下载");
+                                                                                     }
 
-                                                       DownloadManager.Request request = new DownloadManager.Request(
-                                                               Uri.parse(down.getUrl()));
-                                                       //指定下载路径和下载文件名
-                                                       request.setDestinationInExternalPublicDir(
-                                                               "/download/",
-                                                               down.getFileName() +
-                                                               "." +
-                                                               down.getExtName()
-                                                       );
-                                                       //获取下载管理器
-                                                       DownloadManager downloadManager = (DownloadManager)getSystemService(
-                                                               Context.DOWNLOAD_SERVICE);
-                                                       //将下载任务加入下载队列，否则不会进行下载
-                                                       downloadManager.enqueue(request);
+                                                                                     @Override
+                                                                                     protected void completed(
+                                                                                             BaseDownloadTask task)
+                                                                                     {
+                                                                                         notification(
+                                                                                                 down.getFileName(),
+                                                                                                 "下载成功");
+                                                                                     }
+
+                                                                                     @Override
+                                                                                     protected void error(
+                                                                                             BaseDownloadTask task,
+                                                                                             Throwable e)
+                                                                                     {
+                                                                                         notification(
+                                                                                                 down.getFileName(),
+                                                                                                 "下载失败");
+                                                                                     }
+                                                                                 }).start();
+                                                       }
                                                    }
                                                })
                                                .setRightButton("取消",new DialogCancelListener())
@@ -219,20 +315,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private class OnSearchResultListener implements OnResultListener {
-        private boolean isRefresh;
-
-        public OnSearchResultListener(boolean isRefresh) {
-            this.isRefresh = isRefresh;
-        }
-
         @Override
-        public void seccess(String json) {
-            json = json.replaceAll("<!--KG_TAG_RES_START-->","");
-            json = json.replaceAll("<!--KG_TAG_RES_END-->","");
-            json = json.replaceAll("<em>","");
-            json = json.replaceAll("<\\\\/em>","");
-            json = json.replaceAll("</em>","");
-            SearchInfo searchInfo = GsonUtils.get(json,SearchInfo.class);
+        public void seccess(boolean isRefresh, String json) {
+            SearchInfo searchInfo = GsonUtils.get(json, SearchInfo.class);
             if (isRefresh) {
                 mPage = 1;
                 Message obtain = Message.obtain();
